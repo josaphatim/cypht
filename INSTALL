@@ -37,34 +37,47 @@ fi
 mkdir cypht-temp
 cd cypht-temp
 
-# grab latest code
-wget https://github.com/cypht-org/cypht/archive/master.zip
+# grab latest stable branch
+wget https://github.com/cypht-org/cypht/archive/1.4.x.zip
+
+# advanced users and developers can get lastest code
+# wget https://github.com/cypht-org/cypht/archive/master.zip
 
 # unpack the archive
-unzip master.zip
+unzip 1.4.x.zip
 
 # run composer if it's there
 if [ -x /usr/bin/composer ]; then
-    cd cypht-master && composer install && cd ..
+    cd cypht-1.4.x && composer install && cd ..
 else
     echo "You may need to install php's composer."
 fi
 
+# switch to latest stable branch [Not for developers nor advanced users]
+git --version 2>&1 >/dev/null
+if [ $? -ne 0 ]; then
+    git checkout 1.4.x
+else
+    echo "You may need to install git."
+fi
+
 # create a vanilla ini file
-cp cypht-master/hm3.sample.ini cypht-master/hm3.ini
+cp cypht-1.4.x/hm3.sample.ini cypht-1.4.x/hm3.ini
 
 # fix permissions and ownership
-find cypht-master -type d -print | xargs chmod 755
-find cypht-master -type f -print | xargs chmod 644
-sudo chown -R root:root cypht-master
+find cypht-1.4.x -type d -print | xargs chmod 755
+find cypht-1.4.x -type f -print | xargs chmod 644
+sudo chown -R root:root cypht-1.4.x
 
 # copy to destination folder
-sudo mv cypht-master/* $DESTINATION
+sudo mv cypht-1.4.x/* $DESTINATION
 
 # remove working directory
 cd ..
 sudo rm -rf cypht-temp
 
+# get latest code updates [to run periodically]
+git pull origin
 
 2. Configure the program
 ------------------------
@@ -181,7 +194,7 @@ Cypht can connect to github and aggregate notification data about repository
 activity.
 
 Example github.ini file:
-https://github.com/cypht-org/cypht/blob/master/modules/github/github.ini
+https://github.com/cypht-org/cypht/blob/1.4.x/modules/github/github.ini
 
 Authorize an application for github:
 https://github.com/settings/developers
@@ -192,7 +205,7 @@ preferable to normal IMAP authentication because Cypht never has access to your
 account password.
 
 Example oauth2 ini file:
-https://github.com/cypht-org/cypht/blob/master/modules/imap/oauth2.ini
+https://github.com/cypht-org/cypht/blob/1.4.x/modules/imap/oauth2.ini
 
 Authorize an application for gmail
 https://console.developers.google.com/project
@@ -204,13 +217,13 @@ LDAP contacts
 Cypht can use an LDAP server for contacts.
 
 Example ldap.ini file:
-https://github.com/cypht-org/cypht/blob/master/modules/ldap_contacts/ldap.ini
+https://github.com/cypht-org/cypht/blob/1.4.x/modules/ldap_contacts/ldap.ini
 
 WordPress
 Cypht can aggregate WordPress.com notifications.
 
 Example wordpress.ini file:
-https://github.com/cypht-org/cypht/blob/master/modules/wordpress/wordpress.ini
+https://github.com/cypht-org/cypht/blob/1.4.x/modules/wordpress/wordpress.ini
 
 Authorize an application for WordPress.com:
 https://developer.wordpress.com/apps/
@@ -219,7 +232,7 @@ Custom themes
 You can create your own themes for Cypht. Edit the themes.ini file to include
 your theme, and put the css file in modules/themes/assets.
 
-https://github.com/cypht-org/cypht/blob/master/modules/themes/themes.ini
+https://github.com/cypht-org/cypht/blob/1.4.x/modules/themes/themes.ini
 
 Having problems?
 
