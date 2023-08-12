@@ -55,8 +55,8 @@ td { vertical-align: top; }
 .disabled_link { color: #bbb; }
 .save_settings_password { float: left; margin-left: 0px; padding: 4px; }
 .disabled_input, input:disabled { color: #aaa !important; background-color: #ddd; }
-input, option, select { font-size: 100%; padding: 3px; }
-textarea, select, input { border: solid 1px #ddd; background-color: #fff; color: #333; border-radius: 3px; }
+input, option, select, button { font-size: 100%; padding: 3px; }
+textarea, select, input, button { border: solid 1px #ddd; background-color: #fff; color: #333; border-radius: 3px; }
 .login_form { float: left; font-size: 90%; padding-top: 60px; height: 300px; border-radius: 0px 0px 10px 0px; margin: 0px; background-color: #f5f5f5; width: 300px; padding-left: 20px; }
 .screen_reader { position:absolute; top:auto; width:1px; height:1px; overflow:hidden; }
 .login_form input { clear: both; float: left; padding: 4px; margin-left: 20px; margin-top: 10px; margin-bottom: 10px; }
@@ -271,6 +271,11 @@ div.unseen, .unseen .subject { font-weight: 700; }
 .mobile .toggle_recipients { top: 8px !important; right: 0px !important; }
 .mobile .prevnext, .mobile .news_cell .subject div img { width: 20px; height: 20px; }
 .mobile .long_session { float: left; clear: both; }
+.reset_default_value_checkbox, .reset_default_value_select, .reset_default_value_input { vertical-align: bottom; transform: scaleX(-1); width: 18px; height: 18px; margin-bottom: 3px; margin-left: 6px; }
+.tooltip_restore { position: relative; }
+.tooltip_restore:hover:after, .tooltip_restore:focus:after { content: attr(restore_aria_label); position: absolute; top: -2.4em; left: 50%; transform: translateX(-50%); z-index: 1; white-space: nowrap; padding: 5px 14px; background: #777; color: #fff; border-radius: 4px; font-size: 1rem; }
+[restore_aria_label]:hover:before, [restore_aria_label]:focus:before { content: "▼"; position: absolute; top: -1em; left: 50%; transform: translateX(-50%); color: #777; }
+[restore_aria_label]:focus { outline: none; }
 
 @media print {
     .sys_messages, .next, .prev, .folder_list, .msg_parts, .header_links, .content_title, .add_contact_row, .unsaved_icon, .add_vcal { display: none !important; }

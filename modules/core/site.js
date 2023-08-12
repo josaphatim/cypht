@@ -853,7 +853,8 @@ function Message_List() {
     };
 
     this.prev_next_links = function(cache, class_name) {
-        var href;
+        var phref;
+        var nhref;
         var target;
         var subject;
         var plink = false;
@@ -864,17 +865,18 @@ function Message_List() {
         var next = current.next();
         target = $('.msg_headers tr').last();
         if (prev.length) {
-            href = prev.find('.subject').find('a').prop('href');
+            phref = prev.find('.subject').find('a').prop('href');
             subject = new Option(prev.find('.subject').text()).innerHTML;
-            plink = '<a class="plink" href="'+href+'"><div class="prevnext prev_img"></div> '+subject+'</a>';
+            plink = '<a class="plink" href="'+phref+'"><div class="prevnext prev_img"></div> '+subject+'</a>';
             $('<tr class="prev"><th colspan="2">'+plink+'</th></tr>').insertBefore(target);
         }
         if (next.length) {
-            href = next.find('.subject').find('a').prop('href');
+            nhref = next.find('.subject').find('a').prop('href');
             subject = new Option(next.find('.subject').text()).innerHTML;
-            nlink = '<a class="nlink" href="'+href+'"><div class="prevnext next_img"></div> '+subject+'</a>';
+            nlink = '<a class="nlink" href="'+nhref+'"><div class="prevnext next_img"></div> '+subject+'</a>';
             $('<tr class="next"><th colspan="2">'+nlink+'</th></tr>').insertBefore(target);
         }
+        return [phref, nhref];
     };
 
     this.check_empty_list = function() {
@@ -1200,7 +1202,15 @@ var Hm_Folders = {
     folder_list_events: function() {
         $('.imap_folder_link').on("click", function() { return expand_imap_folders($(this).data('target')); });
         $('.src_name').on("click", function() { return Hm_Utils.toggle_section($(this).data('source')); });
-        $('.update_message_list').on("click", function() { return Hm_Folders.update_folder_list(); });
+        $('.update_message_list').on("click", function(e) {
+            var text = e.target.innerHTML;
+            e.target.innerHTML = '<img src="'+hm_web_root_path()+'modules/core/assets/images/spinner.gif" />';
+            Hm_Folders.update_folder_list();
+            Hm_Ajax.add_callback_hook('hm_reload_folders', function() {
+                e.target.innerHTML = text;
+            }); 
+            return false;
+        });
         $('.hide_folders').on("click", function() { return Hm_Folders.hide_folder_list(); });
         $('.logout_link').on("click", function() { return Hm_Utils.confirm_logout(); });
         if (hm_search_terms()) {
@@ -1634,12 +1644,97 @@ var hl_save_link = function() {
     }
 };
 
+var reset_default_value_checkbox = function() {
+    let checkbox = this.parentElement.parentElement.firstChild;
+    if (checkbox.disabled == false) {
+        this.style.transform = "scaleX(1)";
+        this.parentElement.setAttribute("restore_aria_label","Restore current value");
+        checkbox.setAttribute("current_value", checkbox.checked);
+        checkbox.checked = !checkbox.checked;
+        checkbox.disabled = true;
+    }
+    else {
+        this.style.transform = "scaleX(-1)";
+        this.parentElement.setAttribute("restore_aria_label","Restore default value")
+        checkbox.checked = checkbox.getAttribute("current_value") == "true" ? true : false;
+        checkbox.disabled = false;
+    }
+};
+
+var reset_default_value_select = function() {
+    let field = this.parentElement.parentElement.firstChild;
+    let tab_static_default_value = {"inline_message_style" : 0, "smtp_compose_type" : 0, "theme_setting" : 0,
+    "timezone" : 0, "list_style" : 0, "idle_time" : 4, "start_page" : 0, "default_sort_order" : 0,
+    "unread_since" : 1, "flagged_since" : 1, "all_since" : 1, "all_email_since" : 1, "feed_since" : 0,
+    "sent_since" : 1};
+    
+    if (this.style.transform == "scaleX(1)") {
+        this.style.transform = "scaleX(-1)";
+        this.parentElement.setAttribute("restore_aria_label","Restore default value")
+        field.selectedIndex = field.getAttribute("current_value");
+        field.style.backgroundColor = "#fff";
+        field.style.pointerEvents = "auto";
+        field.style.touchAction = "auto";
+    }
+    else {
+        this.style.transform = "scaleX(1)";
+        this.parentElement.setAttribute("restore_aria_label","Restore current value");
+        field.setAttribute("current_value", field.selectedIndex);
+        if (field.getAttribute("name") == "language") {
+            for(let compter = 0; field.length > compter; compter ++){
+                if (field.options[compter].getAttribute("value") == "en") {
+                    field.selectedIndex = field.options[compter].index;
+                }
+            }
+        }
+        else {
+            field.selectedIndex = tab_static_default_value[field.getAttribute("name")];
+        }
+        field.style.backgroundColor = "#eee";
+        field.style.pointerEvents = "none";
+        field.style.touchAction = "none";
+    }
+};
+
+var reset_default_value_input = function() {
+    let field = this.parentElement.parentElement.firstChild;
+    const defaultValue = this.getAttribute("default-value");
+
+    if (this.style.transform == "scaleX(1)") {
+        this.style.transform = "scaleX(-1)";
+        this.parentElement.setAttribute("restore_aria_label","Restore default value")
+        field.value = field.getAttribute("current_value");
+        field.style.backgroundColor = "#fff";
+        field.style.pointerEvents = "auto";
+        field.style.touchAction = "auto";
+    }
+    else {
+        this.style.transform = "scaleX(1)";
+        this.parentElement.setAttribute("restore_aria_label","Restore current value");
+        field.setAttribute("current_value", field.value);
+        field.value = 20;
+        if(defaultValue) {
+            field.value = defaultValue;
+        }
+        field.style.backgroundColor = "#eee";
+        field.style.pointerEvents = "none";
+        field.style.touchAction = "none";
+    }
+};
+
 /* create a default message list object */
 var Hm_Message_List = new Message_List();
 
 /* executes on onload, has access to other module code */
 $(function() {
-
+    /* Remove disabled attribute to send checkbox */
+    $('.save_settings').on("click", function (e) {
+        $('.general_setting input[type=checkbox]').each(function () {
+            if (this.hasAttribute('disabled') && this.checked) {
+                this.removeAttribute('disabled');
+            }
+        });
+    })
     /* setup settings and server pages */
     if (hm_page_name() == 'settings') {
         Hm_Utils.expand_core_settings();
@@ -1696,6 +1791,11 @@ $(function() {
         $('.list_controls.on_mobile').hide();
     }
     $('.offline').on("click", function() { Hm_Utils.test_connection(); });
+    if (hm_page_name() == 'settings') {
+        $('.reset_default_value_checkbox').on("click", reset_default_value_checkbox);
+        $('.reset_default_value_select').on("click", reset_default_value_select);
+        $('.reset_default_value_input').on("click", reset_default_value_input);
+    }
     
     fixLtrInRtl()
 });

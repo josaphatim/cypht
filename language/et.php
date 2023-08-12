@@ -137,7 +137,7 @@ return array(
     'Invalid username or password' => 'Vale kasutajanimi või salasõna',
     'Update' => 'Uuenda',
     'Save' => 'Salvesta',
-    'Factory Reset' => 'Tehaseseadete taastamine',
+    'Restore Defaults' => 'Taasta algsed sätted',
     'Sources' => 'Allikad',
     'Configure' => 'Seadista',
     'Refresh' => 'Värskenda',
@@ -589,7 +589,11 @@ return array(
     'Search Results' => 'Otsingutulemused',
     'feed item' => 'kirje uudisvoost',
     'Allow handling of mailto links' => 'Luba mailto-viidete kasutamist',
-    'Show folders' => 'Näita kaustu'
+    'Show folders' => 'Näita kaustu',
+    'Show next & previous emails when reading a message' => false,
+    'Archive to the original folder' => false,
+    'Move To Blocked Folder' => false,
+    'Sieve server capabilities' => false,
 ); 
 
 ?>

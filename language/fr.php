@@ -134,7 +134,7 @@ return array(
     'Invalid username or password' => 'Identifiant ou mot de passe incorrect',
     'Update' => 'Mettre à jour',
     'Save' => 'Enregistrer',
-    'Factory Reset' => 'Retour aux paramètres d\'usine',
+    'Restore Defaults' => 'Réinitialiser',
     'Sources' => 'Sources',
     'Configure' => 'Configurer',
     'Refresh' => 'Recharger',
@@ -581,7 +581,11 @@ return array(
     'Search Results' => false,
     'feed item' => false,
     'Allow handling of mailto links' => false,
-    'Show folders' => false
+    'Show folders' => false,
+    'Show next & previous emails when reading a message' => false,
+    'Archive to the original folder' => false,
+    'Move To Blocked Folder' => 'Déplacer vers le dossier Bloqués',
+    'Sieve server capabilities' => 'Capacités du serveur Sieve',
 ); 
 
 ?>

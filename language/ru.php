@@ -136,7 +136,7 @@ return array(
     'Invalid username or password' => 'Ошибка в имени пользователя или пароле',
     'Update' => 'Обновить',
     'Save' => 'Сохранить',
-    'Factory Reset' => 'Сброс к заводским настройкам',
+    'Restore Defaults' => 'Восстановить настройки по-умолчанию',
     'Sources' => 'Исходники',
     'Configure' => 'Настроить',
     'Refresh' => 'Обновить',
@@ -583,7 +583,11 @@ return array(
     'Search Results' => false,
     'feed item' => false,
     'Allow handling of mailto links' => false,
-    'Show folders' => false
+    'Show folders' => false,
+    'Show next & previous emails when reading a message' => false,
+    'Archive to the original folder' => false,
+    'Move To Blocked Folder' => false,
+    'Sieve server capabilities' => false,
 ); 
 
 ?>

@@ -134,7 +134,7 @@ return array(
     'Invalid username or password' => 'Login sau parolă greșite',
     'Update' => 'Actualizează',
     'Save' => 'Salvați',
-    'Factory Reset' => 'Resetare din fabrică',
+    'Restore Defaults' => 'Restabiliti setarile de baza',
     'Sources' => 'Surse',
     'Configure' => 'Configurare',
     'Refresh' => 'Reîncărcare',
@@ -581,7 +581,11 @@ return array(
     'Search Results' => false,
     'feed item' => false,
     'Allow handling of mailto links' => false,
-    'Show folders' => false
+    'Show folders' => false,
+    'Show next & previous emails when reading a message' => false,
+    'Archive to the original folder' => false,
+    'Move To Blocked Folder' => false,
+    'Sieve server capabilities' => false,
 ); 
 
 ?>

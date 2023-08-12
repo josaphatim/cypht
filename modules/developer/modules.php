@@ -7,6 +7,10 @@
  */
 
 if (!defined('DEBUG_MODE')) { die(); }
+define('COMMITS_URL', 'https://github.com/cypht-org/cypht/commit/');
+
+require_once VENDOR_PATH.'autoload.php';
+use Webklex\ComposerInfo\ComposerInfo;
 
 /**
  * Build server information data
@@ -23,6 +27,58 @@ class Hm_Handler_process_server_info extends Hm_Handler_Module {
         $res['sapi'] = php_sapi_name();
         $res['handlers'] = Hm_Handler_Modules::dump();
         $res['output'] = Hm_Output_Modules::dump();
+
+        $branch_name = '-';
+        $commit_hash = '-';
+        $commit_url = '-';
+        $commit_date = '-';
+
+        new ComposerInfo([
+            'location'=>VENDOR_PATH.'composer/installed.json'
+        ]);
+        $package = ComposerInfo::getPackage("jason-munro/cypht");
+        if ($package) {
+            // Cypht is embedded
+            $branch_name = str_replace(['dev-', '-dev'], '', $package['version']);
+            $commit_hash = substr($package['dist']['reference'], 0, 7);
+            $commit_url = COMMITS_URL.$commit_hash;
+            $commit_date = $package['time'];
+        } elseif (exec('git --version')) {
+            // Standalone cypht
+            $branch_name = trim(exec('git rev-parse --abbrev-ref HEAD'));
+            $commit_hash = substr(trim(exec('git log --pretty="%H" -n1 HEAD')), 0, 7);
+            $commit_url = COMMITS_URL.$commit_hash;
+            $commit_date = trim(exec('git log -n1 --pretty=%ci HEAD'));
+        }
+
+        if ($commit_hash != '-') {
+            // Get right commit date (not merge date) if not a local commit
+            $ch = Hm_Functions::c_init();
+            if ($ch) {
+                Hm_Functions::c_setopt($ch, CURLOPT_URL, 'https://api.github.com/repos/jasonmunro/cypht/commits/'.$commit_hash);
+                Hm_Functions::c_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                Hm_Functions::c_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+                Hm_Functions::c_setopt($ch, CURLOPT_USERAGENT, $this->request->server["HTTP_USER_AGENT"]);
+                $curl_result = Hm_Functions::c_exec($ch);
+                if (trim($curl_result)) {
+                    if (!strstr($curl_result, 'No commit found for SHA')) {
+                        $json_commit = json_decode($curl_result);
+                        $commit_date = $json_commit->commit->author->date;
+                    }
+                }
+            }
+        }
+
+        $res['branch_name'] = $branch_name;
+        $res['commit_hash'] = $commit_hash;
+        $res['commit_url'] = $commit_url;
+
+        if ($commit_date != '-') {
+            $commit_date = new \DateTime($commit_date);
+            $commit_date->setTimezone(new \DateTimeZone('UTC'));
+            $res['commit_date'] = $commit_date->format('M d, Y');
+        }
+
         $this->out('server_info', $res);
     }
 }
@@ -44,7 +100,7 @@ class Hm_Output_dev_content extends Hm_Output_Module {
             'not yet complete, has a lot of useful information'.
             '<br /><br />&nbsp;&nbsp;&nbsp;<a href="http://cypht.org/docs/code_docs/index.html">http://cypht.org/docs/code_docs/index.html</a>'.
             '<br /><br />Finally there is a "hello world" module with lots of comments included in the project download and browsable at github'.
-            '<br /><br />&nbsp;&nbsp;&nbsp;<a href="https://github.com/jasonmunro/cypht/tree/master/modules/hello_world">https://github.com/jasonmunro/cypht/tree/master/modules/hello_world</a>'.
+            '<br /><br />&nbsp;&nbsp;&nbsp;<a href="https://github.com/cypht-org/cypht/tree/master/modules/hello_world">https://github.com/cypht-org/cypht/tree/master/modules/hello_world</a>'.
             '</div></div>';
     }
 }
@@ -125,6 +181,7 @@ class Hm_Output_server_information extends Hm_Output_Module {
                 '<tr><th>Zend version</th><td>'.$server_info['zend_version'].'</td></tr>'.
                 '<tr><th>SAPI</th><td>'.$server_info['sapi'].'</td></tr>'.
                 '<tr><th>Enabled Modules</th><td>'.str_replace(',', ', ', implode(',', $this->get('router_module_list'))).'</td></tr>'.
+                '<tr><th>Git version</th><td>'.$server_info['branch_name'].' at revision <a href="'.$server_info['commit_url'].'">'.$server_info['commit_hash'].'</a> ('.$server_info['commit_date'].')</td></tr>'.
                 '</table></div>';
         }
         return '';
@@ -204,7 +261,8 @@ class Hm_Output_server_status_start extends Hm_Output_Module {
      */
     protected function output() {
         $res = '<div class="content_title">Status</div><table><thead><tr><th>'.$this->trans('Type').'</th><th>'.$this->trans('Name').'</th><th>'.
-                $this->trans('Status').'</th></tr></thead><tbody>';
+                $this->trans('Status').'</th><th>'.
+                $this->trans('Sieve server capabilities').'</th></tr></thead><tbody>';
         return $res;
     }
 }

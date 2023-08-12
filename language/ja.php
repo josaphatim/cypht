@@ -134,7 +134,7 @@ return array(
     'Invalid username or password' => 'ユーザー名かパスワードに誤りがあります',
     'Update' => '更新',
     'Save' => '保存',
-    'Factory Reset' => '工場出荷時のリセット',
+    'Restore Defaults' => 'デフォルトに戻す',
     'Sources' => 'サービス',
     'Configure' => '設定',
     'Refresh' => '再読み込み',
@@ -581,7 +581,11 @@ return array(
     'Search Results' => false,
     'feed item' => false,
     'Allow handling of mailto links' => false,
-    'Show folders' => false
+    'Show folders' => false,
+    'Show next & previous emails when reading a message' => false,
+    'Archive to the original folder' => false,
+    'Move To Blocked Folder' => false,
+    'Sieve server capabilities' => false,
 ); 
 
 ?>

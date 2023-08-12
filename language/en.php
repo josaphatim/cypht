@@ -134,7 +134,7 @@ return array(
     'Invalid username or password' => false,
     'Update' => false,
     'Save' => false,
-    'Factory Reset' => false,
+    'Restore Defaults' => false,
     'Sources' => false,
     'Configure' => false,
     'Refresh' => false,
@@ -581,7 +581,11 @@ return array(
     'Search Results' => false,
     'feed item' => false,
     'Allow handling of mailto links' => false,
-    'Show folders' => false
+    'Show folders' => false,
+    'Show next & previous emails when reading a message' => false,
+    'Archive to the original folder' => false,
+    'Move To Blocked Folder' => false,
+    'Sieve server capabilities' => false,
 ); 
 
 ?>

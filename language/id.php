@@ -141,7 +141,7 @@ return array(
     'Invalid username or password' => 'Nama pengguna atau kata sandi tidak valid',
     'Update' => 'Perbarui',
     'Save' => 'Simpan',
-    'Factory Reset' => 'Atur ulang pabrik factory',
+    'Restore Defaults' => 'Kembalikan Default',
     'Sources' => 'Sumber',
     'Configure' => 'Konfigurasi',
     'Refresh' => 'Segarkan',
@@ -589,6 +589,10 @@ return array(
     'feed item' => 'item feed',
     'Allow handling of mailto links' => 'Izinkan penanganan tautan mailto',
     'Show folders' => 'Tampilkan folder',
+    'Show next & previous emails when reading a message' => false,
+    'Archive to the original folder' => false,
+    'Move To Blocked Folder' => false,
+    'Sieve server capabilities' => false,
 ); 
 
 ?>

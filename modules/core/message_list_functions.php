@@ -368,14 +368,19 @@ function message_since_dropdown($since, $name, $output_mod) {
         '-5 years' => 'Last 5 years'
     );
     $res = '<select name="'.$name.'" id="'.$name.'" class="message_list_since">';
+    $reset = '';
     foreach ($times as $val => $label) {
         $res .= '<option';
         if ($val == $since) {
             $res .= ' selected="selected"';
+            if (($name == 'feed_since' && $val != 'today') || ($name != 'feed_since' && $val != '-1 week')) {
+                $reset = '<span class="tooltip_restore" restore_aria_label="Restore default value"><img alt="Refresh" class="refresh_list reset_default_value_select"  src="'.Hm_Image_Sources::$refresh.'" /></span>';
+            }
+
         }
         $res .= ' value="'.$val.'">'.$output_mod->trans($label).'</option>';
     }
-    $res .= '</select>';
+    $res .= '</select>'.$reset;
     return $res;
 }}
 
@@ -499,7 +504,7 @@ function validate_search_terms($terms) {
  */
 if (!hm_exists('validate_search_fld')) {
 function validate_search_fld($fld) {
-    if (in_array($fld, array('TEXT', 'BODY', 'FROM', 'SUBJECT'))) {
+    if (in_array($fld, array('TEXT', 'BODY', 'FROM', 'SUBJECT', 'TO', 'CC'))) {
         return $fld;
     }
     return false;
@@ -519,6 +524,8 @@ function search_field_selection($current, $output_mod) {
         'BODY' => 'Message body',
         'SUBJECT' => 'Subject',
         'FROM' => 'From',
+        'TO' => 'To',
+        'CC' => 'Cc',
     );
     $res = '<select id="search_fld" name="search_fld">';
     foreach ($flds as $val => $name) {

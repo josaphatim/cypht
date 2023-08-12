@@ -134,7 +134,7 @@ return array(
     'Invalid username or password' => 'Érvénytelen felhasználó név vagy jelszó',
     'Update' => 'Frissítés',
     'Save' => 'Mentés',
-    'Factory Reset' => 'Gyári beállítások visszaállítása',
+    'Restore Defaults' => 'Alapértelmezések visszaállítása',
     'Sources' => 'Források',
     'Configure' => 'Beállítás',
     'Refresh' => 'Frissítés',
@@ -581,7 +581,11 @@ return array(
     'Search Results' => false,
     'feed item' => false,
     'Allow handling of mailto links' => false,
-    'Show folders' => false
+    'Show folders' => false,
+    'Show next & previous emails when reading a message' => false,
+    'Archive to the original folder' => false,
+    'Move To Blocked Folder' => false,
+    'Sieve server capabilities' => false,
 );
 
 ?>

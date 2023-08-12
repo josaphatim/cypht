@@ -55,14 +55,17 @@ return array(
     ),
     'allowed_output' => array(
         'nux_service_step_two' => array(FILTER_UNSAFE_RAW, false),
-        'nux_account_added' => array(FILTER_VALIDATE_BOOLEAN, false)
+        'nux_account_added' => array(FILTER_VALIDATE_BOOLEAN, false),
+        'nux_server_id' => array(FILTER_VALIDATE_INT, false),
+        'nux_service_name' => array(FILTER_SANITIZE_FULL_SPECIAL_CHARS, false)
     ),
     'allowed_post' => array(
         'nux_service' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
         'nux_email' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
         'nux_name' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
         'nux_pass' => FILTER_UNSAFE_RAW,
-        'nux_account_name' => FILTER_SANITIZE_FULL_SPECIAL_CHARS
+        'nux_account_name' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
+        'nux_all_inkl_login' => FILTER_SANITIZE_FULL_SPECIAL_CHARS
     )
 );
 

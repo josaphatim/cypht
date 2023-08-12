@@ -24,8 +24,12 @@ function format_msg_html($str, $images=false) {
     }
     $config->set('URI.AllowedSchemes', array('mailto' => true, 'data' => true, 'http' => true, 'https' => true));
     $config->set('Filter.ExtractStyleBlocks.TidyImpl', true);
-    $purifier = new HTMLPurifier($config);
-    return @$purifier->purify($str);
+    try {
+        $purifier = new HTMLPurifier($config);
+        return $purifier->purify($str);
+    } catch (Exception $e) {
+        return '';
+    }
 }}
 
 /**
@@ -122,9 +126,6 @@ function reply_to_address($headers, $type) {
             }
         }
     }
-    if (!array_key_exists('delivered-to', $headers) && array_key_exists('to', $headers)) {
-        list($parsed, $msg_to) = format_reply_address($headers['to'], $parsed); 
-    }
     if ($type == 'reply_all') {
         if ($delivered_address) {
             $parsed[] = $delivered_address;
@@ -173,7 +174,7 @@ function format_reply_address($fld, $excluded) {
     if ($res) {
         return array($addr, implode(', ', array_map(function($v) {
             if (trim($v['label'])) {
-                return $v['label'].' '.$v['email'];
+                return str_replace([',', ';'], '', $v['label']).' '.$v['email'];
             }
             else {
                 return $v['email'];
@@ -235,7 +236,7 @@ function reply_lead_in($headers, $type, $to, $output_mod) {
     }
     elseif ($type == 'forward') {
         $flds = array();
-        foreach( array('From', 'Date', 'Subject') as $fld) {
+        foreach( array('From', 'Date', 'Subject', 'To', 'Cc') as $fld) {
             if (array_key_exists($fld, $headers)) {
                 $flds[$fld] = $headers[$fld];
             }
@@ -402,15 +403,25 @@ function decode_fld($string) {
             $encoding = $fld[0];
             $fld = substr($fld, (strpos($fld, '?') + 1));
             if (strtoupper($encoding) == 'B') {
-                $fld = mb_convert_encoding(base64_decode($fld), 'UTF-8', $charset);
+                $fld = convert_to_utf8(base64_decode($fld), $charset);
             }
             elseif (strtoupper($encoding) == 'Q') {
-                $fld = mb_convert_encoding(quoted_printable_decode(str_replace('_', ' ', $fld)), 'UTF-8', $charset);
+                $fld = convert_to_utf8(quoted_printable_decode(str_replace('_', ' ', $fld)), $charset);
             }
             $string = str_replace($v, $fld, $string);
         }
     }
     return trim($string);
+}}
+
+if (!hm_exists('convert_to_utf8')) {
+function convert_to_utf8($data, $from_encoding) {
+    try {
+        $data = mb_convert_encoding($data, 'UTF-8', $from_encoding);
+    } catch (ValueError $e) {
+        $data = iconv($from_encoding, 'UTF-8', $data); 
+    }
+    return $data;
 }}
 
 /**

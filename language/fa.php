@@ -152,7 +152,7 @@ return array(
     "Invalid username or password"=>"نام کاربری یا رمز ورود نامعتبر است",
     "Update"=>"به روز رسانی",
     "Save"=>"ذخیره",
-    "Factory Reset"=>"بازنشانی کارخانه",
+    "Restore Defaults"=>"بازیابی پیش فرض ها",
     "Sources"=>"منابع",
     "Configure"=>"پیکربندی کنید",
     "Refresh"=>"تازه کردن",
@@ -633,7 +633,11 @@ return array(
     "9"=>"۹",
     "Page Not Found!"=>"صفحه پیدا نشد!",
     "Nothingness"=>"هیچ",
-    "Nope"=>"نه خیر"
+    "Nope"=>"نه خیر",
+    'Show next & previous emails when reading a message' => false,
+    'Archive to the original folder' => false,
+    'Move To Blocked Folder' => false,
+    'Sieve server capabilities' => false,
 );
 
 ?>

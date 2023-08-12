@@ -191,5 +191,37 @@ Nux_Quick_Services::add('gandi', array(
         'server' => 'mail.gandi.net',
         'port' => 465,
         'tls' => true
+    ),
+    'sieve' => array(
+        'port' => 4190,
+        'host' => 'mail.gandi.net'
+    )
+));
+
+Nux_Quick_Services::add('kolabnow', array(
+    'server' => 'imap.kolabnow.com',
+    'type' => 'imap',
+    'tls' => true,
+    'port' => 993,
+    'name' => 'Kolab Now',
+    'auth' => 'login',
+    'smtp' => array(
+        'server' => 'smtp.kolabnow.com',
+        'port' => 465,
+        'tls' => true
+    )
+));
+
+Nux_Quick_Services::add('all-inkl', array(
+    'server' => '.kasserver.com',
+    'type' => 'imap',
+    'tls' => true,
+    'port' => 993,
+    'name' => 'All-inkl',
+    'auth' => 'login',
+    'smtp' => array(
+        'server' => '.kasserver.com',
+        'port' => 465,
+        'tls' => true
     )
 ));
