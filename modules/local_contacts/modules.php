@@ -71,6 +71,84 @@ class Hm_Handler_process_add_contact extends Hm_Handler_Module {
     }
 }
 
+
+/**
+ * @subpackage local_contacts/handler
+ */
+class Hm_Handler_process_import_contact extends Hm_Handler_Module {
+    public function process() {
+        list($success, $form) = $this->process_form(array('contact_source', 'import_contact'));
+        if ($success && $form['contact_source'] == 'csv') {
+            $file = $this->request->files['contact_csv'];
+            $csv = fopen($file['tmp_name'], 'r');
+            if ($csv) {
+                $contacts = $this->get('contact_store');
+                $header = fgetcsv($csv);
+                $expectedHeader = array('display_name', 'email_address', 'phone_number');
+
+                if ($header !== $expectedHeader) {
+                    fclose($csv);
+                    Hm_Msgs::add('ERRInvalid CSV file, please use a valid header: '.implode(', ', $expectedHeader));
+                    return;
+                }
+
+                $contact_list = $this->user_config->get('contacts', array());
+                $contact_list = array_map(function($v) { $v['type'] = 'local'; return $v; }, $contact_list);
+                $message = '';
+                $update_count = 0;
+                $create_count = 0;
+                $invalid_mail_count = 0;
+                $import_result = [];
+
+                while (($data = fgetcsv($csv)) !== FALSE) {
+                    $email = $data[1];
+                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        $import_result['invalid'] .= $email.',';
+                        $invalid_mail_count++;
+                        continue;
+                    }
+
+                    $details = array('source' => 'local', 'display_name' => $data[0], 'email_address' => $email);
+                    if (array_key_exists(2, $data) && $data[2]) {
+                        $details['phone_number'] = $data[2];
+                    }
+
+                    $contactUpdated = false;
+
+                    foreach ($contact_list as $key => $contact) {
+                        if ($contact['email_address'] == $email) {
+                            // $contacts->update_contact($key, $details);
+                            $import_result['update'] .= $email.',';
+                            $update_count++;
+                            $contactUpdated = true;
+                            continue 2;
+                        }
+                    }
+
+                    if (!$contactUpdated) {
+                        // $contacts->add_contact($details);
+                        $import_result['create'] .= $email.',';
+                        $create_count++;
+                    }
+                }
+                fclose($csv);
+                $this->user_config->set('contacts', $contacts->export());
+                $this->session->record_unsaved('Contact Created');
+                if (isset($import_result) && (!$create_count && !$update_count)) {
+                    $message = 'ERR'.$create_count.' contacts created, '.$update_count.' contacts updated, '.$invalid_mail_count.' Invalid email address';
+                } elseif (isset($import_result) && ($create_count || $update_count)) {
+                    $message = $create_count.' contacts created, '.$update_count.' contacts updated, '.$invalid_mail_count.' Invalid email address'; 
+                } else {
+                    $message = 'ERRAn error occured';
+                }
+                $this->session->set('contact_imported', $import_result);
+                Hm_Msgs::add($message);
+            }
+        }
+    }
+}
+
+
 /**
  * @subpackage local_contacts/handler
  */
@@ -169,6 +247,31 @@ class Hm_Output_contacts_form extends Hm_Output_Module {
             '<label class="form-label" for="contact_phone">'.$this->trans('Telephone Number').'</label>'.
             '<input class="form-control" placeholder="'.$this->trans('Telephone Number').'" id="contact_phone" type="text" name="contact_phone" '.
             'value="'.$this->html_safe($phone).'" /><br />'.$button.' <input type="button" class="btn btn-secondary reset_contact" value="'.
+            $this->trans('Cancel').'" /></div></form></div>';
+    }
+}
+
+/**
+ * @subpackage import_local_contacts/output
+ */
+class Hm_Output_import_contacts_form extends Hm_Output_Module {
+    protected function output() {
+        $form_class = 'contact_form';
+        $button = '<input class="add_contact_submit" type="submit" name="import_contact" id="import_contact" value="'.$this->trans('Add').'" />';
+        $notice = 'Please ensure your CSV header file follows the format: display_name, email_address, phone_number';
+        $title = $this->trans('Import from CSV file');
+        $csv_sample_path = WEB_ROOT.'modules/core/assets/data/contact_sample.csv';
+        
+        return '<div class="add_contact"><form class="add_contact_form" method="POST" id="import_form" enctype="multipart/form-data">'.
+            '<div class="server_title" title="'.$notice.'">'.$title.
+            '<img alt="" class="menu_caret" src="'.Hm_Image_Sources::$chevron.'" width="8" height="8" /></div>'.
+            '<div class="'.$form_class.'">'.
+            '<div><a href="'.$csv_sample_path.'">'.$this->trans('download a sample csv file').'</a></div><br />'.
+            '<input type="hidden" name="contact_source" value="csv" />'.
+            '<input type="hidden" name="hm_page_key" value="'.$this->html_safe(Hm_Request_Key::generate()).'" />'.
+            '<label class="screen_reader" for="contact_csv">'.$this->trans('Csv File').'</label>'.
+            '<input required id="contact_csv" type="file" name="contact_csv" accept=".csv"/> *<br />'.
+            $button.' <input type="button" class="reset_contact" value="'.
             $this->trans('Cancel').'" /></div></form></div>';
     }
 }

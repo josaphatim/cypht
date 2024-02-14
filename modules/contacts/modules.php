@@ -85,6 +85,31 @@ class Hm_Handler_load_contacts extends Hm_Handler_Module {
 }
 
 /**
+ * @subpackage contacts/handler
+ */
+class Hm_Handler_process_export_contacts extends Hm_Handler_Module {
+    public function process() {
+        if (array_key_exists('contact_source', $this->request->get)) {
+            $source = $this->request->get['contact_source'];
+            $contact_list = $this->user_config->get('contacts', array());
+            if ($source != 'all') {
+                $contact_list = array_filter($contact_list, function($v) { return $v['source'] == $this->request->get['contact_source']; });
+            }
+
+            Hm_Functions::header('Content-Type: text/csv');
+            Hm_Functions::header('Content-Disposition: attachment; filename="'.$source.'_contacts.csv"');
+            $output = fopen('php://output', 'w');
+            fputcsv($output, array('display_name', 'email_address', 'phone_number'));
+            foreach ($contact_list as $contact) {
+                fputcsv($output, array($contact['display_name'], $contact['email_address'], $contact['phone_number']));
+            }
+            fclose($output);
+            exit;
+        }
+    }
+}
+
+/**
  * @subpackage contacts/output
  */
 class Hm_Output_contacts_page_link extends Hm_Output_Module {
@@ -106,7 +131,17 @@ class Hm_Output_contacts_page_link extends Hm_Output_Module {
  */
 class Hm_Output_contacts_content_start extends Hm_Output_Module {
     protected function output() {
-        return '<div class="contacts_content px-0"><div class="content_title px-3">'.$this->trans('Contacts').'</div>';
+        $contact_source_list = $this->get('contact_sources', array());
+        $actions = '<div class="src_title">'.$this->trans('Export Contacts as CSV').'</div>';
+        $actions .= '<div class="list_src"><a href="?page=export_contact&amp;contact_source=all">'.$this->trans('All Contacts').'</a></div>';
+        foreach ($contact_source_list as $value) {
+            $actions .= '<div class="list_src"><a href="?page=export_contact&amp;contact_source='.$this->html_safe($value).'">'.$this->html_safe($this->html_safe($value).' Contacts').'</a></div>';
+        }
+
+        return '<div class="contacts_content px-0"><div class="content_title px-3"">'.$this->trans('Contacts').'</div>'.
+        '<div class="list_controls source_link"><a href="#" title="'.$this->trans('Export Contacts').'" class="refresh_list">'.
+                '<img src="'.Hm_Image_Sources::$save.'" alt="" width="16" height="16" onclick="listControlsMenu()"/></a></div>
+                <div class="list_actions">'.$actions.'</div>';
     }
 }
 
@@ -148,10 +183,23 @@ class Hm_Output_add_message_contacts extends Hm_Output_Module {
 }
 
 /**
+ * @subpackage contacts/handler
+ */
+class Hm_Handler_check_imported_contacts extends Hm_Handler_Module {
+    public function process() {
+        $contacts_imported = $this->session->get('contact_imported', array());
+        $this->session->del('contact_imported');
+        $this->out('contact_imported', $contacts_imported);
+    }
+}
+
+/**
  * @subpackage contacts/output
  */
 class Hm_Output_contacts_list extends Hm_Output_Module {
     protected function output() {
+        // njo iyi monsieur
+        $imported_contacts = $this->get('contact_imported', array());
         if (count($this->get('contact_sources', array())) == 0) {
             return '<div class="no_contact_sources">'.$this->trans('No contact backends are enabled!').
                 '<br />'.$this->trans('At least one backend must be enabled in the config/app.php file to use contacts.').'</div>';
@@ -159,6 +207,8 @@ class Hm_Output_contacts_list extends Hm_Output_Module {
         $per_page = 25;
         $current_page = $this->get('contact_page', 1);
         $res = '<div class="px-3 mt-3"><table class="contact_list table">';
+        $res .=
+        '<tr class="contact_import_detail"><td colspan="7"><a href="#" class="show_import_detail">'.$this->trans('Click here to see the detailed log of import operation').'</a></td></tr>';
         $res .= '<tr><td colspan="7" class="contact_list_title"><div class="server_title">'.$this->trans('Contacts').'</div></td></tr>';
         $contacts = $this->get('contact_store');
         $editable = $this->get('contact_edit', array());
@@ -328,3 +378,42 @@ function name_map($val) {
     }
     return $val;
 }}
+
+
+
+class Hm_Output_import_modal extends Hm_Output_Module
+{
+    protected function output()
+    {
+        return get_import_detail_modal_content();
+    }
+}
+
+if (!hm_exists('get_import_detail_modal_content')) {
+    function get_import_detail_modal_content()
+    {
+        return '<div id="import_detail_modal" style="display: none;">
+            <h1 class="import_detail_title"></h1>  
+            <hr/>
+            <div style="display: flex; height: 70px; margin-bottom: 10px;">
+                <div style="width: 100%;">
+                    <h3 style="margin-bottom: 2px;">General</h3>
+                    <small>Input a name and order for your filter. In filters, the order of execution is important. You can define an order value (or priority value) for your filter. Filters will run from lowest to highest priority value.</small>
+                </div>
+            </div>
+            <div style="margin-bottom: 10px; margin-top: 45px; display:flex; justify-content: end; align-items:stretch; flex-direction: column;">
+                <b style="margin:5px 0px;">Filter Name:</b><input  style="margin:5px 0px; padding:5px;" class="modal_sieve_script_name" type="text" placeholder="Your filter name" /> 
+                <b style="margin:5px 0px;">Priority:</b><input style="margin:5px 0px; padding:5px;" class="modal_sieve_script_priority" type="number" placeholder="0"  /> 
+            </div>
+            <div style="display: flex; height: 70px; margin-bottom: 10px;">
+                <div style="width: 100%;">
+                    <h3 style="margin-bottom: 2px;">Sieve Script</h3>
+                    <small>Paste the Sieve script in the field below. Manually added scripts cannot be edited with the filters interface.</small>
+                </div>
+            </div>
+            <div style="margin-bottom: 10px; margin-top:22px;">
+                <textarea style="width: 100%;" rows="20" class="modal_sieve_script_textarea"></textarea>
+            </div>
+        </div>';
+    }
+}

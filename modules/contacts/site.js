@@ -241,3 +241,104 @@ else if (hm_page_name() == 'compose') {
     $('.compose_bcc').on('keyup', function(e) { autocomplete_contact(e, '.compose_bcc', '#bcc_contacts'); });
     $('.compose_to').focus();
 }
+
+$(function() {
+    $('.source_link').on("click", function() { $('.list_actions').toggle(); $('#list_controls_menu').hide(); return false; });
+    //import_contact
+    // $('#import_contactss').on("click", function () {
+    //     // var form = new FormData($('#import_form')[0]);
+    //     // console.log(form);
+    //     var fileInput = document.getElementById('contact_csv');
+    //     var file = fileInput.files[0];
+    //     $('.contact_import_detail a').css({ display: "block" });
+    //     // var form = $('#import_form');
+    //     // var form = new FormData();
+    //     // form.append('hm_ajax_hook', 'ajax_import_contact');
+    //     // form.append('contact_source', 'csv');
+    //     // form.append('import_contact', 'test');
+    //     // form.append('myfile', $('input[type=file')[0].files[0]);
+
+    //     // console.log('myfile', form);
+        
+    //     if(!file) {
+    //         Hm_Notices.show('ERREmpty file provided');
+    //     }
+    //     Hm_Ajax.request(
+    //         [
+    //             { name: 'hm_ajax_hook', 'value': 'ajax_import_contact' },
+    //             { name: 'contact_source', 'value': 'csv' },
+    //             { name: 'import_contact', 'value': 'test' },
+    //             { name: 'myfile', 'value': $('input[type=file')[0].files[0] },
+    //         ],
+    //         function (res) {
+    //             console.log('log::::', res);
+    //             $('.contact_import_detail a').css({ display: "block" });
+    //         }
+    //     );
+    // });
+
+
+    $('.show_import_detail').on('click', function () {
+        if (hm_page_name() === 'contacts') {
+            /**************************************************************************************
+             *                             TINGLE IMPORT MODAL
+             **************************************************************************************/
+            var import_detail_modal = new tingle.modal({
+                footer: true,
+                stickyFooter: false,
+                closeMethods: ['overlay', 'button', 'escape'],
+                closeLabel: "Close",
+                cssClass: ['custom-class-1', 'custom-class-2'],
+                onOpen: function () {
+                },
+                onClose: function () {
+                },
+                beforeClose: function () {
+                    // here's goes some logic
+                    // e.g. save content before closing the modal
+                    return true; // close the modal
+                    return false; // nothing happens
+                }
+            });
+
+            // set content
+            import_detail_modal.setContent('TEST TTTT');
+            // set content
+            // import_detail_modal.setContent(document.querySelector('#import_detail_modal').innerHTML);
+            // $('#import_detail_modal').remove();
+
+            // // add a button
+            // import_detail_modal.addFooterBtn('Save', 'tingle-btn tingle-btn--primary tingle-btn--pull-right', async function () {
+            //     save_script(current_account);
+            // });
+
+            // // add another button
+            // edit_script_modal.addFooterBtn('Close', 'tingle-btn tingle-btn--default tingle-btn--pull-right', function () {
+            //     // here goes some logic
+            //     import_detail_modal.close();
+            // });
+
+            // console.log('content::::', document.querySelector('#import_detail_modal').innerHTML)
+            // alert(document.querySelector('#import_detail_modal').innerHTML)
+
+            import_detail_modal.open();
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+        return false;
+    });
+});
+
+
+
