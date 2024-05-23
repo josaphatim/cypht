@@ -841,7 +841,7 @@ class Hm_Handler_imap_delete_message extends Hm_Handler_Module {
      * Use IMAP to delete the selected message uid
      */
     public function process() {
-        list($success, $form) = $this->process_form(array('imap_msg_uid', 'imap_server_id', 'folder'));
+        list($success, $form) = $this->process_form(array('imap_msg_uid', 'imap_server_id', 'folder', 'inline'));
         if ($success) {
             $del_result = false;
             $cache = Hm_IMAP_List::get_cache($this->cache, $form['imap_server_id']);
@@ -875,7 +875,9 @@ class Hm_Handler_imap_delete_message extends Hm_Handler_Module {
                 Hm_Msgs::add('Message deleted');
                 $this->out('imap_delete_error', false);
             }
-            $this->save_hm_msgs();
+            if (!$form['inline']) {
+                $this->save_hm_msgs();
+            }
         }
     }
 }
@@ -890,7 +892,7 @@ class Hm_Handler_imap_archive_message extends Hm_Handler_Module {
      * Use IMAP to archive the selected message uid
      */
     public function process() {
-        list($success, $form) = $this->process_form(array('imap_msg_uid', 'imap_server_id', 'folder'));
+        list($success, $form) = $this->process_form(array('imap_msg_uid', 'imap_server_id', 'folder', 'inline'));
 
         if (!$success) {
             return;
@@ -940,7 +942,9 @@ class Hm_Handler_imap_archive_message extends Hm_Handler_Module {
                 Hm_Msgs::add('ERRAn error occurred archiving the message');
             }
         }
-        $this->save_hm_msgs();
+        if (!$form['inline']) {
+            $this->save_hm_msgs();
+        }
     }
 }
 

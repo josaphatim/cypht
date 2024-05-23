@@ -416,6 +416,7 @@ return array(
         'review_sent_email' => FILTER_VALIDATE_BOOLEAN,
         'imap_snooze_ids' => FILTER_DEFAULT,
         'imap_snooze_until' => FILTER_DEFAULT,
-        'auto_advance_email' => FILTER_VALIDATE_BOOLEAN
+        'auto_advance_email' => FILTER_VALIDATE_BOOLEAN,
+        'inline' => FILTER_VALIDATE_BOOLEAN,
     )
 );

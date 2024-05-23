@@ -160,7 +160,8 @@ var imap_delete_message = function(state, supplied_uid, supplied_detail) {
             [{'name': 'hm_ajax_hook', 'value': 'ajax_imap_delete_message'},
             {'name': 'imap_msg_uid', 'value': uid},
             {'name': 'imap_server_id', 'value': detail.server_id},
-            {'name': 'folder', 'value': detail.folder}],
+            {'name': 'folder', 'value': detail.folder},
+            {'name': 'inline', 'value': detail.hasOwnProperty('inline')}],
             function(res) {
                 if (!res.imap_delete_error) {
                     if (Hm_Utils.get_from_global('msg_uid', false)) {
@@ -714,7 +715,7 @@ var imap_message_view_finished = function(msg_uid, detail, skip_links) {
     $('.small_headers').on("click", function() { return Hm_Utils.toggle_long_headers(); });
     $('#flag_msg').on("click", function() { return imap_flag_message($(this).data('state')); });
     $('#unflag_msg').on("click", function() { return imap_flag_message($(this).data('state')); });
-    $('#delete_message').on("click", function() { return imap_delete_message(); });
+    $('#delete_message').on("click", function() { return imap_delete_message(this); });
     $('#move_message').on("click", function(e) { return imap_move_copy(e, 'move', 'message');});
     $('#copy_message').on("click", function(e) { return imap_move_copy(e, 'copy', 'message');});
     $('#archive_message').on("click", function(e) { return imap_archive_message();});
@@ -1229,7 +1230,8 @@ var imap_archive_message = function(state, supplied_uid, supplied_detail) {
             [{'name': 'hm_ajax_hook', 'value': 'ajax_imap_archive_message'},
             {'name': 'imap_msg_uid', 'value': uid},
             {'name': 'imap_server_id', 'value': detail.server_id},
-            {'name': 'folder', 'value': detail.folder}],
+            {'name': 'folder', 'value': detail.folder},
+            {'name': 'inline', 'value': detail.hasOwnProperty('inline')}],
             function(res) {
                 if (!res.imap_archive_error) {
                     if (Hm_Utils.get_from_global('msg_uid', false)) {
