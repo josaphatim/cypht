@@ -117,13 +117,64 @@ class Hm_Handler_load_smtp_is_imap_draft extends Hm_Handler_Module {
 /**
  * @subpackage smtp/handler
  */
+class Hm_Handler_load_smtp_is_imap_forward_att extends Hm_Handler_Module
+{
+    public function process() {
+        if (!$this->module_is_supported('imap')) {
+            return;
+        }
+        if (array_key_exists('forward_att', $this->request->get)) {
+            $path = explode('_', $this->request->get['list_path']);
+            $imap = Hm_IMAP_List::connect($path[1]);
+
+            if ($imap && $imap->select_mailbox(hex2bin($path[2]))) {
+                $msg_header = $imap->get_message_headers($this->request->get['uid']);
+                if (!array_key_exists('From', $msg_header) || count($msg_header) == 0) {
+                    return;
+                }
+                $content = $imap->get_message_content($this->request->get['uid'], 0, false, false);
+
+                # Attachment Download
+                $attached_files = [];
+                $this->session->set('uploaded_files', array());
+
+                $file_dir = $this->config->get('attachment_dir') . DIRECTORY_SEPARATOR . md5($this->session->get('username', false)) . DIRECTORY_SEPARATOR;
+                if (!is_dir($file_dir)) {
+                    mkdir($file_dir);
+                }
+                $name = $msg_header['subject'] . '.eml';
+                $file_path = $file_dir . $name;
+                $attached_files[$this->request->get['uid']][] = array(
+                    'name' => $name,
+                    'type' => 'message/rfc822',
+                    'size' => strlen($content),
+                    'tmp_name' => $file_path,
+                    'filename' => $file_path,
+                    'basename' => $msg_header['subject']
+                );
+
+                $content = Hm_Crypt::ciphertext($content, Hm_Request_Key::generate());
+                file_put_contents($file_path, $content);
+
+                $this->session->set('uploaded_files', $attached_files);
+                $this->out('as_attr', true);
+            }
+        }
+    }
+}
+
+/**
+ * @subpackage smtp/handler
+ */
 class Hm_Handler_load_smtp_is_imap_forward extends Hm_Handler_Module
 {
     public function process() {
         if (!$this->module_is_supported('imap')) {
             return;
         }
-
+        if ($this->get('as_attr', false)) {
+            return;
+        }
         if (array_key_exists('forward', $this->request->get)) {
             $path = explode('_', $this->request->get['list_path']);
             $imap = Hm_IMAP_List::connect($path[1]);
