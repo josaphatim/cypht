@@ -2,7 +2,7 @@
 
 from base import WebTest, USER, PASS, SITE_URL
 from runner import test_runner
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver import Keys, ActionChains
 from settings import SettingsHelpers
 from selenium.common.exceptions import ElementNotVisibleException, ElementNotInteractableException
 
@@ -17,37 +17,50 @@ class KeyboardShortcutTests(SettingsHelpers):
 
     def nav_to_page(self, key_combo, titlestr, title_class):
         el = self.by_tag('body')
-        el.send_keys(key_combo)
+        el.click()
+
+        # Create ActionChains object for chaining key presses
+        action = ActionChains(self.driver)
+
+        # Iterate through the key_combo list and perform key_down for each
+        for key in key_combo:
+            action.key_down(key)
+
+        # Release all keys after chaining
+        action.perform()
+
         self.wait_with_folder_list()
         assert self.by_class(title_class).text.startswith(titlestr)
 
     def nav_to_unread(self):
-        self.nav_to_page(Keys.CONTROL + Keys.SHIFT + 'u', 'Unread', 'mailbox_list_title')
+        self.nav_to_page([Keys.CONTROL, Keys.SHIFT, 'u'], 'Unread', 'mailbox_list_title')
 
     def nav_to_everything(self):
-        self.nav_to_page(Keys.CONTROL + Keys.SHIFT + 'e', 'Everything', 'mailbox_list_title')
+        self.nav_to_page([Keys.CONTROL, Keys.SHIFT, 'e'], 'Everything', 'mailbox_list_title')
 
     def nav_to_flagged(self):
-        self.nav_to_page(Keys.CONTROL + Keys.SHIFT + 'f', 'Flagged', 'mailbox_list_title')
+        self.nav_to_page([Keys.CONTROL, Keys.SHIFT, 'f'], 'Flagged', 'mailbox_list_title')
 
     def nav_to_history(self):
-        self.nav_to_page(Keys.CONTROL + Keys.SHIFT + 'h', 'Message history', 'content_title')
+        self.nav_to_page([Keys.CONTROL, Keys.SHIFT, 'h'], 'Message history', 'content_title')
 
     def nav_to_contacts(self):
-        self.nav_to_page(Keys.CONTROL + Keys.SHIFT + 'c', 'Contacts', 'content_title')
+        self.nav_to_page([Keys.CONTROL, Keys.SHIFT, 'c'], 'Contacts', 'content_title')
 
     def nav_to_compose(self):
-        self.nav_to_page(Keys.CONTROL + Keys.SHIFT + 's', 'Compose', 'content_title')
+        self.nav_to_page([Keys.CONTROL, Keys.SHIFT, 's'], 'Compose', 'content_title')
 
     def toggle_folders(self):
         el = self.by_tag('body')
-        el.send_keys(Keys.CONTROL + Keys.SHIFT + 'y')
+        el.click()
+        print(self.by_tag('head').get_attribute('innerHTML'))
+        ActionChains(self.driver).key_down(Keys.CONTROL).key_down(Keys.SHIFT).send_keys('y').perform()
+
         try:
             self.by_class('folder_list').click()
-            #assert False == True
         except ElementNotInteractableException:
             pass
-        el.send_keys(Keys.CONTROL + Keys.SHIFT + 'y')
+        ActionChains(self.driver).key_down(Keys.CONTROL).key_down(Keys.SHIFT).send_keys('y').perform()
         self.by_class('folder_list').click()
 
 

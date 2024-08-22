@@ -8,18 +8,18 @@ var ks_follow_link = function(target) {
 };
 
 var ks_redirect = function(target) {
-    document.location.href = target;
+    Hm_Utils.redirect(target);
 };
 
 var ks_select_all = function() {
     Hm_Message_List.toggle_rows();
-};
+}; 
 
 var ks_select_msg = function() {
     var focused = $(document.activeElement);
     $('input', focused).each(function() {
         if ($(this).prop('checked')) {
-            $(this).prop('checked', false);
+            $(this).prop('checked', false); 
         }
         else {
             $(this).prop('checked', true);
@@ -153,13 +153,8 @@ var Keyboard_Actions = {
 };
 
 $(function() {
-
     if (typeof shortcuts != 'undefined') {
         $(document).on('keydown', ':not(input)', function(e) { return Keyboard_Shortcuts.check(e, shortcuts); });
     }
-    if (hm_page_name() == 'shortcuts') {
-        $('.reset_shortcut').on("click", function() {
-            Hm_Utils.redirect('?page=shortcuts');
-        });
-    }
 });
+
