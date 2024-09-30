@@ -625,7 +625,7 @@ return [
     | Handles page layout, login/logout, and the default settings pages. This set
     | is required.
     */
-    'modules' => explode(',', env('CYPHT_MODULES','core,contacts,local_contacts,feeds,imap,smtp,account,idle_timer,calendar,themes,nux,developer,history,saved_searches,advanced_search,highlights,profiles,inline_message,imap_folders,keyboard_shortcuts')),
+    'modules' => explode(',', env('CYPHT_MODULES','core,contacts,local_contacts,feeds,imap,smtp,account,idle_timer,calendar,themes,nux,developer,history,saved_searches,advanced_search,highlights,profiles,inline_message,imap_folders,keyboard_shortcuts,tags')),
     // 'modules' => [
     //     /*
     //     |  ----
@@ -1295,7 +1295,7 @@ return [
     | Enable keyboard shortcuts
     | Defaults to false
     */
-    'default_setting_enable_keyboard_shortcuts' => env('DEFAULT_SETTING_ENABLE_KEYBOARD_SHORTCUTS', 1),
+    'default_setting_enable_keyboard_shortcuts' => env('DEFAULT_SETTING_ENABLE_KEYBOARD_SHORTCUTS', false),
 
     /*
     |
