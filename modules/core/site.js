@@ -127,7 +127,7 @@ var Hm_Ajax = {
         return;
     },
 
-    request: function(args, callback, extra, no_icon, batch_callback, on_failure) {
+    request: function(args, callback, extra, no_icon, batch_callback, on_failure, signal) {
         var bcb = false;
         if (typeof batch_callback != 'undefined' && $.inArray(batch_callback, this.batch_callbacks) === -1) {
             bcb = batch_callback.toString();
@@ -146,7 +146,7 @@ var Hm_Ajax = {
             $('body').addClass('wait');
         }
         Hm_Ajax.active_reqs++;
-        return ajax.make_request(args, callback, extra, name, on_failure, batch_callback);
+        return ajax.make_request(args, callback, extra, name, on_failure, batch_callback, signal);
     },
 
     show_loading_icon: function() {
@@ -208,6 +208,11 @@ var Hm_Ajax_Request = function() { return {
         }
         const url = window.location.next ?? window.location.href;
         xhr.open('POST', url)
+        if (config.signal) {
+            config.signal.addEventListener('abort', function() {
+                xhr.abort();
+            });
+        }
         xhr.addEventListener('load', function() {
             config.callback.done(Hm_Utils.json_decode(xhr.response, true), xhr);
             config.callback.always(Hm_Utils.json_decode(xhr.response, true));
@@ -235,7 +240,7 @@ var Hm_Ajax_Request = function() { return {
         return res.join('&');
     },
 
-    make_request: function(args, callback, extra, request_name, on_failure, batch_callback) {
+    make_request: function(args, callback, extra, request_name, on_failure, batch_callback, signal) {
         var name;
         var arg;
         this.batch_callback = batch_callback;
@@ -261,7 +266,7 @@ var Hm_Ajax_Request = function() { return {
         }
         var dt = new Date();
         this.start_time = dt.getTime();
-        this.xhr_fetch({url: '', data: args, callback: this});
+        this.xhr_fetch({url: '', data: args, callback: this, signal});
         return false;
     },
 
