@@ -276,7 +276,7 @@ class Hm_Output_login extends Hm_Output_Module {
                 $changed = 1;
             }
 
-        return '<div class="modal fade" id="confirmLogoutModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="confirmLogoutModalLabel" aria-hidden="true">
+        return '<input type="hidden" id="unsaved_changes" value="'.$changed.'" /><div class="modal fade" id="confirmLogoutModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="confirmLogoutModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
