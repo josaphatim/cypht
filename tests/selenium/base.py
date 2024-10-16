@@ -29,6 +29,10 @@ class WebTest:
         if 'browserName' in self.driver.capabilities:
             self.browser = self.driver.capabilities['browserName'].lower()
         self.load()
+        # Change the window size to make sure all elements are visible
+        current_size = self.driver.get_window_size()
+        new_height = 5000
+        self.driver.set_window_size(current_size['width'], new_height)
 
     def read_ini(self):
         self.modules = []
