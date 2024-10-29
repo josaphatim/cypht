@@ -890,7 +890,7 @@ if (!class_exists('Hm_IMAP')) {
             if ($this->is_supported( 'X-GM-EXT-1' )) {
                 $command .= 'X-GM-MSGID X-GM-THRID X-GM-LABELS ';
             }
-            $command .= "BODY.PEEK[HEADER.FIELDS (SUBJECT X-AUTO-BCC FROM DATE CONTENT-TYPE X-PRIORITY TO LIST-ARCHIVE REFERENCES MESSAGE-ID X-SNOOZED)])\r\n";
+            $command .= "BODY.PEEK[HEADER.FIELDS (SUBJECT X-AUTO-BCC FROM DATE CONTENT-TYPE X-PRIORITY TO LIST-ARCHIVE REFERENCES MESSAGE-ID X-SNOOZED)] BODY.PEEK[1])\r\n";
             $cache_command = $command.(string)$raw;
             $cache = $this->check_cache($cache_command);
             if ($cache !== false) {
@@ -942,8 +942,18 @@ if (!class_exists('Hm_IMAP')) {
                                     $last_header = $header;
                                 }
                             }
-                        }
-                        elseif (isset($tags[mb_strtoupper($vals[$i])])) {
+                        } elseif ($vals[$i] == 'BODY[1') {
+                            $content = '';
+                            $i++;
+                            $i++;
+                            while(isset($vals[$i]) && $vals[$i] != ')') {
+                                $content .= $vals[$i];
+                                $i++;
+                            }
+                            $i++;
+                            exit(var_dump('CONTENU:' . $content));
+
+                        } elseif (isset($tags[mb_strtoupper($vals[$i])])) {
                             if (isset($vals[($i + 1)])) {
                                 if (($tags[mb_strtoupper($vals[$i])] == 'flags' || $tags[mb_strtoupper($vals[$i])] == 'google_labels' ) && $vals[$i + 1] == '(') {
                                     $n = 2;
