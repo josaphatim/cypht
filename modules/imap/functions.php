@@ -111,10 +111,11 @@ function prepare_imap_message_list($msgs, $mod, $type) {
  * @return string
  */
 if (!hm_exists('format_imap_folder_section')) {
-function format_imap_folder_section($folders, $id, $output_mod, $with_input = false, $can_share_folders = false) {
+function format_imap_folder_section($folders, $id, $output_mod, $with_input = false) {
     $results = '<ul class="inner_list">';
     $manage = $output_mod->get('imap_folder_manage_link');
-
+    $quota = $output_mod->get('quota');
+    $quota_max = $output_mod->get('quota_max');
     foreach ($folders as $folder_name => $folder) {
         $folder_name = bin2hex($folder_name);
         $results .= '<li class="imap_'.$id.'_'.$output_mod->html_safe($folder_name).'">';
@@ -131,7 +132,7 @@ function format_imap_folder_section($folders, $id, $output_mod, $with_input = fa
                     $attrs .= ' class="folder-disabled"';
                 }
             } else {
-                $attrs = 'id="main-link" data-id="imap_'.$id.'_'.$output_mod->html_safe($folder_name).
+                $attrs = 'data-id="imap_'.$id.'_'.$output_mod->html_safe($folder_name).
                 '" href="?page=message_list&amp;list_path='.
                 urlencode('imap_'.$id.'_'.$output_mod->html_safe($folder_name)).'"';
             }
@@ -150,22 +151,14 @@ function format_imap_folder_section($folders, $id, $output_mod, $with_input = fa
         if ($with_input) {
             $results .= '<input type="checkbox" value="1" class="folder_subscription" id="'.$output_mod->html_safe($folder_name).'" name="'.$folder_name.'" '.($folder['subscribed']? 'checked="checked"': '').($folder['special']? ' disabled="disabled"': '').' />';
         }
-        $results .= '<span class="unread_count unread_imap_'.$id.'_'.$output_mod->html_safe($folder_name).'"></span>';
-        if($can_share_folders) {
-            $results .= '<div class="dropdown"><a href="#" class="action-link" data-bs-toggle="dropdown" aria-expanded="false"><i class="icon bi bi-three-dots-vertical"></i></a><ul class="dropdown-menu dropdown-menu"><li data-id="'.$id.'" data-folder-uid="'.$output_mod->html_safe($folder_name).'" data-folder="'.$output_mod->html_safe($folder['basename']).'"><a href="#" class="dropdown-item share"><i class="icon bi bi-share"></i> Share</a></ul></div>';
-        }
-        $results .= '</li>';
+        $results .= '<span class="unread_count unread_imap_'.$id.'_'.$output_mod->html_safe($folder_name).'"></span></li>';
     }
     if ($manage) {
         $results .= '<li class="manage_folders_li"><i class="bi bi-gear-wide me-1"></i><a class="manage_folder_link" href="'.$manage.'">'.$output_mod->trans('Manage Folders').'</a></li>';
     }
-    $f = $output_mod->get('folder', '');
-    $quota = $output_mod->get('quota');
-    $quota_max = $output_mod->get('quota_max');
-    if (!$f && $quota) {
-        $results .= '<li class="quota_info"><div class="progress bg-secondary border"><div class="progress-bar bg-light" style="width:'.$quota.'%"></div></div>'.$quota.'% used on '.$quota_max.' MB</li>';
+    if ($quota) {
+        $results .= '<li class="manage_folders_li"><div class="progress bg-secondary border"><div class="progress-bar bg-light" style="width:'.$quota.'%"></div></div>'.$quota.'% used on '.$quota_max.' MB</li>';
     }
-
     $results .= '</ul>';
     return $results;
 }}
@@ -223,6 +216,11 @@ function format_imap_message_list($msg_list, $output_module, $parent_list=false,
             $msg['subject'] = '[No Subject]';
         }
         $subject = $msg['subject'];
+        $preview_msg = "";
+        if (isset($msg['preview_msg'])) {
+            $preview_msg = $msg['preview_msg'];
+        }
+       
         if ($parent_list == 'sent') {
             $icon = 'sent';
             $from = $msg['to'];
@@ -298,7 +296,7 @@ function format_imap_message_list($msg_list, $output_module, $parent_list=false,
             $res[$id] = message_list_row(array(
                     array('checkbox_callback', $id),
                     array('icon_callback', $flags),
-                    array('subject_callback', $subject, $url, $flags, $icon),
+                    array('subject_callback', array("subject" => $subject, "preview_msg" => $preview_msg), $url, $flags, $icon),
                     array('safe_output_callback', 'source', $source),
                     array('safe_output_callback', 'from'.$nofrom, $from, null, str_replace(array($from, '<', '>'), '', $msg['from'])),
                     array('date_callback', $date, $timestamp),
@@ -314,7 +312,7 @@ function format_imap_message_list($msg_list, $output_module, $parent_list=false,
                     array('checkbox_callback', $id),
                     array('safe_output_callback', 'source', $source, $icon),
                     array('safe_output_callback', 'from'.$nofrom, $from, null, str_replace(array($from, '<', '>'), '', $msg['from'])),
-                    array('subject_callback', $subject, $url, $flags),
+                    array('subject_callback', array("subject" => $subject, "preview_msg" => $preview_msg), $url, $flags),
                     array('date_callback', $date, $timestamp, $is_snoozed),
                     array('icon_callback', $flags)
                 ),
@@ -468,7 +466,7 @@ function format_msg_part_row($id, $vals, $output_mod, $level, $part, $dl_args, $
     if ($mobile) {
         $res .= '<div class="part_size">'.$output_mod->html_safe($size);
         $res .= '</div><div class="part_desc">'.$output_mod->html_safe(decode_fld($desc)).'</div>';
-        $res .= '<div class="download_link"><a href="#" data-src="?'.$dl_args.'&amp;imap_msg_part='.$output_mod->html_safe($id).'">'.$output_mod->trans('Download').'</a></div></td>';
+        $res .= '<div class="download_link"><a href="?'.$dl_args.'&amp;imap_msg_part='.$output_mod->html_safe($id).'">'.$output_mod->trans('Download').'</a></div></td>';
     }
     else {
         $res .= '</td><td class="part_size">'.$output_mod->html_safe($size);
@@ -477,10 +475,10 @@ function format_msg_part_row($id, $vals, $output_mod, $level, $part, $dl_args, $
                 '</td><td class="part_charset">'.(isset($vals['attributes']['charset']) && trim($vals['attributes']['charset']) ? $output_mod->html_safe(mb_strtolower($vals['attributes']['charset'])) : '');
         }
         $res .= '</td><td class="part_desc">'.$output_mod->html_safe(decode_fld($desc)).'</td>';
-        $res .= '<td class="download_link"><a href="#" data-src="?'.$dl_args.'&amp;imap_msg_part='.$output_mod->html_safe($id).'">'.$output_mod->trans('Download').'</a></td>';
+        $res .= '<td class="download_link"><a href="?'.$dl_args.'&amp;imap_msg_part='.$output_mod->html_safe($id).'">'.$output_mod->trans('Download').'</a></td>';
     }
     if ($output_mod->get('allow_delete_attachment') && isset($vals['file_attributes']['attachment'])) {
-        $res .= '<td><a href="#" data-src="?'.$at_args.'&amp;imap_msg_part='.$output_mod->html_safe($id).'" class="remove_attachment">'.$output_mod->trans('Remove').'</a></td>';
+        $res .= '<td><a href="?'.$at_args.'&amp;imap_msg_part='.$output_mod->html_safe($id).'" class="remove_attachment">'.$output_mod->trans('Remove').'</a></td>';
     }
     $res .= '</tr>';
     return $res;
@@ -641,7 +639,7 @@ function format_attachment($struct,  $output_mod, $part, $dl_args, $at_args) {
             $res .= '<tr><td class="part_desc" colspan="4">'.$output_mod->html_safe(decode_fld($desc)).'</td>';
             $res .= '</td><td class="part_size">'.$output_mod->html_safe($size).'</td>';
 
-            $res .= '<td class="download_link"><a href="#" data-src="?'.$dl_args.'&amp;imap_msg_part='.$output_mod->html_safe($id).'">'.$output_mod->trans('Download').'</a></td>';
+            $res .= '<td class="download_link"><a href="?'.$dl_args.'&amp;imap_msg_part='.$output_mod->html_safe($id).'">'.$output_mod->trans('Download').'</a></td>';
             if ($output_mod->get('allow_delete_attachment') && isset($vals['file_attributes']['attachment'])) {
                 $res .= '<td><a href="?'.$at_args.'&amp;imap_msg_part='.$output_mod->html_safe($id).'" class="remove_attachment">'.$output_mod->trans('Remove').'</a></td></tr>';
             }
@@ -890,7 +888,7 @@ function imap_move_same_server($ids, $action, $hm_cache, $dest_path, $screen_ema
                     }
                 }
             }
-
+            
         }
     }
     return $moved;
@@ -1516,15 +1514,16 @@ if (!hm_exists('forward_dropdown')) {
 if (!hm_exists('parse_sieve_config_host')) {
 function parse_sieve_config_host($host) {
     $url = parse_url($host);
-    if(!isset($url['host'])) {
-        $host = $url['path'];
-    }
+    $host = $url['host'] ?? $url['path'];
     $port = $url['port'] ?? '4190';
-    return [$host, $port];
+    $scheme = $url['scheme'] ?? 'tcp://';
+    $tls = $scheme === 'tls';
+    // $host = '$scheme://'.$host;
+    return [$host, $port, $tls];
 }}
 
 if (!hm_exists('connect_to_imap_server')) {
-    function connect_to_imap_server($address, $name, $port, $user, $pass, $tls, $imap_sieve_host, $enableSieve, $type, $context, $hidden = false, $server_id = false, $sieve_tls = false, $show_errors = true) {
+    function connect_to_imap_server($address, $name, $port, $user, $pass, $tls, $imap_sieve_host, $enableSieve, $type, $context, $hidden = false, $server_id = false) {
         $imap_list = array(
             'name' => $name,
             'server' => $address,
@@ -1546,8 +1545,8 @@ if (!hm_exists('connect_to_imap_server')) {
 
         if ($enableSieve && $imap_sieve_host) {
             $imap_list['sieve_config_host'] = $imap_sieve_host;
-            $imap_list['sieve_tls'] = $sieve_tls;
         }
+
         if ($server_id) {
             if (Hm_IMAP_List::edit($server_id, $imap_list)) {
                 $imap_server_id = $server_id;
@@ -1569,20 +1568,15 @@ if (!hm_exists('connect_to_imap_server')) {
             $context->user_config->get('enable_sieve_filter_setting', DEFAULT_ENABLE_SIEVE_FILTER)) {
             try {
 
-                include_once APP_PATH.'modules/sievefilters/hm-sieve.php';
+                include APP_PATH.'modules/sievefilters/hm-sieve.php';
                 $sieveClientFactory = new Hm_Sieve_Client_Factory();
                 $client = $sieveClientFactory->init(null, $server);
 
-                if (!$client && $show_errors) {
+                if (!$client) {
                     Hm_Msgs::add("ERRFailed to authenticate to the Sieve host");
                 }
             } catch (Exception $e) {
-                if ($show_errors) {
-                    Hm_Msgs::add("ERRFailed to authenticate to the Sieve host");
-                }
-                if (! $server_id) {
-                    Hm_IMAP_List::del($imap_server_id);
-                }
+                Hm_Msgs::add("ERRFailed to authenticate to the Sieve host");
                 return;
             }
         }
@@ -1591,11 +1585,9 @@ if (!hm_exists('connect_to_imap_server')) {
 
         if (imap_authed($imap)) {
             return $imap_server_id;
-        } else {
+        }else {
             Hm_IMAP_List::del($imap_server_id);
-            if ($show_errors) {
-                Hm_Msgs::add('ERRAuthentication failed');
-            }
+            Hm_Msgs::add('ERRAuthentication failed');
             return null;
         }
     }
