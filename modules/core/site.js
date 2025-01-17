@@ -1734,6 +1734,13 @@ var hm_spinner = function(type = 'border', size = '') {
     </div>`
 };
 
+var hm_spinner_text = function(text, id = 'spinner-text') {
+    return `<div class="text-center p-3" id="${id}">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        ${text}
+    </div>`;
+};
+
 var fillImapData = function(details) {
     $('#srv_setup_stepper_imap_address').val(details.server);
     $('#srv_setup_stepper_imap_port').val(details.port);

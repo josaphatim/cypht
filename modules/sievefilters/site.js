@@ -284,7 +284,7 @@ function blockListPageHandlers() {
         );
     });
 
-    $('.sievefilters_accounts_title').on("click", function () {
+    $(document).on('click', '.sievefilters_accounts_title', function() {
         $(this).parent().find('.sievefilters_accounts').toggleClass('d-none');
     });
 }
@@ -525,7 +525,7 @@ function sieveFiltersPageHandler() {
     /**************************************************************************************
      *                                      MODAL EVENTS
      **************************************************************************************/
-    $('.sievefilters_accounts_title').on("click", function () {
+    $(document).on('click', '.sievefilters_accounts_title', function() {
         $(this).parent().find('.sievefilters_accounts').toggleClass('d-none');
     });
     $('.add_filter').on('click', function () {
@@ -975,6 +975,29 @@ function sieveFiltersPageHandler() {
             }
         );
     });
+
+    var load_account_sieve_filters = function() {
+        const dataSources = hm_data_sources() ?? [];
+        
+        if (dataSources.length) {
+            dataSources.forEach((source) => {
+                let spinnerId = `spinner_${source.id}`;
+                let spinnnerText = hm_spinner_text(`Loading filters for ${source.name}`, spinnerId);
+                $('#sieve_accounts').append(spinnnerText);
+                Hm_Ajax.request(
+                    [{'name': 'hm_ajax_hook', 'value': 'ajax_account_sieve_filters'},
+                    {'name': 'imap_server_id', 'value': source.id}],
+                    (res) => {
+                        $(`#${spinnerId}`).remove();
+                        $('#sieve_accounts').append(res.sieve_detail_display);
+                    }
+                );
+            })
+        }
+        return false;
+    };
+
+    load_account_sieve_filters();
 }
 
 $(function () {
