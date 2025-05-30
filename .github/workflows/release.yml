@@ -26,8 +26,11 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader
 
+      - name: Install star utility
+        run: sudo apt-get install -y star
+
       - name: Create tarball
-        run: star -c -f=cypht.tar.gz -z -exclude .env -exclude .dockerignore .
+        run: star -c -f=cypht.tar.gz -z -exclude .github -exclude .git -exclude .gitignore -exclude .travis -exclude .travis.yml -exclude .coveralls.yml -exclude .env.example cypht
 
       - name: Upload release asset
         uses: actions/upload-release-asset@v1
