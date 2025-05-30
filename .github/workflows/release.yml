@@ -27,7 +27,7 @@ jobs:
         run: composer install --no-dev --optimize-autoloader
 
       - name: Create tarball
-        run: tar -czvf cypht.tar.gz ./*
+        run: star -c -f=cypht.tar.gz -z -exclude .github -exclude .git -exclude .gitignore -exclude .travis -exclude .travis.yml -exclude .coveralls.yml -exclude .env.example cypht
 
       - name: Upload release asset
         uses: actions/upload-release-asset@v1
