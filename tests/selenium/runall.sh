@@ -4,7 +4,7 @@ PYTHON=$(command -v python3)
 rm -rf __pycache__/
 
 # for suite in login.py folder_list.py pages.py profiles.py settings.py servers.py send.py search.py inline_msg.py keyboard_shortcuts.py
-for suite in pages.py
+for suite in login.py folder_list.py pages.py
 do
     export TEST_SUITE="$suite"
     "$PYTHON" -u ./$suite
