@@ -44,14 +44,12 @@ class PageTests(WebTest):
             assert 'Sent' in title_text, f"Expected 'Sent' in content title, got: '{title_text}'"
 
     def unread(self):
-        self.wait(30)
         list_item = self.by_class('menu_unread')
         a = list_item.find_element(By.TAG_NAME, 'a')
         self.safe_click(a)
         self.wait_with_folder_list()
         self.safari_workaround()
         self.wait_for_navigation_to_complete()
-        self.wait(30)
         # Look for mailbox_list_title inside content_title
         try:
             mailbox_title = self.by_class('mailbox_list_title')
