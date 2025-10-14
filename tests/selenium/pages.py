@@ -14,22 +14,21 @@ class PageTests(WebTest):
 
     def search(self):
         list_item = self.wait_for_element_by_class('menu_search')
-        link = list_item.find_element(By.TAG_NAME, 'a')
-        self.safe_click(link)
+        a = list_item.find_element(By.CSS_SELECTOR, 'a.input-group-text')
+        self.safe_click(a)
         self.wait_with_folder_list()
         self.safari_workaround()
         self.wait_for_navigation_to_complete()
-        # More flexible text matching for search page
         self.wait_on_class('content_title')
         content_title = self.by_class('content_title')
         title_text = content_title.text.strip()
-        print(f"MESSAGES FOUND: '{title_text}'")
+        print(f"Search page title: '{title_text}'")
         assert 'Search' in title_text or 'search' in title_text.lower(), f"Expected 'Search' in title, got: '{title_text}'"
 
     def sent(self):
         list_item = self.by_class('menu_sent')
-        link = list_item.find_element(By.TAG_NAME, 'a')
-        self.safe_click(link)
+        a = list_item.find_element(By.TAG_NAME, 'a')
+        self.safe_click(a)
         self.wait_with_folder_list()
         self.safari_workaround()
         self.wait_for_navigation_to_complete()
@@ -46,8 +45,8 @@ class PageTests(WebTest):
 
     def unread(self):
         list_item = self.by_class('menu_unread')
-        link = list_item.find_element(By.TAG_NAME, 'a')
-        self.safe_click(link)
+        a = list_item.find_element(By.TAG_NAME, 'a')
+        self.safe_click(a)
         self.wait_with_folder_list()
         self.safari_workaround()
         self.wait_for_navigation_to_complete()
@@ -66,8 +65,7 @@ class PageTests(WebTest):
         if self.single_server():
             return
         list_item = self.by_class('menu_combined_inbox')
-        link = list_item.find_element(By.TAG_NAME, 'a')
-        self.safe_click(link)
+        list_item.find_element(By.TAG_NAME, 'a').click()
         self.wait_with_folder_list()
         self.safari_workaround()
         self.wait_for_navigation_to_complete()
@@ -84,8 +82,7 @@ class PageTests(WebTest):
 
     def flagged(self):
         list_item = self.by_class('menu_flagged')
-        link = list_item.find_element(By.TAG_NAME, 'a')
-        self.safe_click(link)
+        list_item.find_element(By.TAG_NAME, 'a').click()
         self.wait_with_folder_list()
         self.safari_workaround()
         self.wait_for_navigation_to_complete()
@@ -97,8 +94,7 @@ class PageTests(WebTest):
         if not self.mod_active('contacts'):
             return
         list_item = self.by_class('menu_contacts')
-        link = list_item.find_element(By.TAG_NAME, 'a')
-        self.safe_click(link)
+        list_item.find_element(By.TAG_NAME, 'a').click()
         self.wait_with_folder_list()
         self.safari_workaround()
         self.wait_for_navigation_to_complete()
@@ -111,8 +107,7 @@ class PageTests(WebTest):
         if not self.mod_active('smtp'):
             return
         list_item = self.by_class('menu_compose')
-        link = list_item.find_element(By.TAG_NAME, 'a')
-        self.safe_click(link)
+        list_item.find_element(By.TAG_NAME, 'a').click()
         self.wait_with_folder_list()
         self.safari_workaround()
         self.wait_for_navigation_to_complete()
@@ -125,8 +120,7 @@ class PageTests(WebTest):
         if not self.mod_active('calendar'):
             return
         list_item = self.by_class('menu_calendar')
-        link = list_item.find_element(By.TAG_NAME, 'a')
-        self.safe_click(link)
+        list_item.find_element(By.TAG_NAME, 'a').click()
         self.wait_with_folder_list()
         self.safari_workaround()
         self.wait_for_navigation_to_complete()
@@ -136,8 +130,7 @@ class PageTests(WebTest):
         if not self.mod_active('history'):
             return
         list_item = self.by_class('menu_history')
-        link = list_item.find_element(By.TAG_NAME, 'a')
-        self.safe_click(link)
+        list_item.find_element(By.TAG_NAME, 'a').click()
         self.wait_with_folder_list()
         self.safari_workaround()
         self.wait_for_navigation_to_complete()
@@ -145,7 +138,7 @@ class PageTests(WebTest):
 
     def home(self):
         list_item = self.by_class('menu_home')
-        self.safe_click(list_item)
+        list_item.click()
         self.wait_with_folder_list()
         self.safari_workaround()
         self.wait_for_navigation_to_complete()
